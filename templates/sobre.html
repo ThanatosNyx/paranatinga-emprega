@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre o Projeto - Paranatinga Emprega</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+        .sobre-container {
+            background-color: white;
+            padding: 2.5rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .sobre-container h2 {
+            color: #1a4a72;
+            border-bottom: 2px solid #2a9d8f;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .subtitulo {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        .secao-bloco {
+            margin-bottom: 2rem;
+        }
+
+        .secao-bloco h3 {
+            color: #2c7da0;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .secao-bloco ul {
+            margin-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .secao-bloco li {
+            margin-bottom: 0.5rem;
+        }
+
+        .cartao-academico {
+            background-color: #e8f4f8;
+            border-left: 4px solid #1a4a72;
+            padding: 1.25rem;
+            border-radius: 4px;
+            margin-top: 2rem;
+        }
+
+        .cartao-academico h3 {
+            color: #1a4a72;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header>
+    <div class="logo">
+        <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">Paranatinga Emprega</a>
+    </div>
+    <nav>
+        <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Ver Vagas</a>
+        <a href="{{ url_for('cadastrar_vaga') }}" class="{{ 'active' if request.endpoint == 'cadastrar_vaga' }}">Anunciar Vaga</a>
+        <a href="{{ url_for('listar_servicos') }}" class="{{ 'active' if request.endpoint == 'listar_servicos' }}">Serviços & Autônomos</a>
+        <a href="{{ url_for('sobre') }}" class="{{ 'active' if request.endpoint == 'sobre' }}">Sobre o Projeto</a>
+
+        {% if session.get('admin_logado') %}
+        <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' }}">Admin</a>
+        {% endif %}
+    </nav>
+    </header>
+
+    <main>
+        <div class="sobre-container">
+            <h2>Sobre o Paranatinga Emprega</h2>
+            <p class="subtitulo">Conectando trabalhadores, empresas e profissionais autônomos de forma simples, gratuita e direta em Paranatinga - MT.</p>
+
+            <div class="secao-bloco">
+                <h3>Nossa Missão</h3>
+                <p>
+                    O <strong>Paranatinga Emprega</strong> nasceu com o propósito de centralizar as oportunidades de trabalho do município em um único canal moderno e acessível a todos. Seja para empregos formais, vagas temporárias ou divulgação de serviços autônomos, nossa meta é encurtar caminhos e fortalecer a economia local.
+                </p>
+            </div>
+
+            <div class="secao-bloco">
+                <h3>Como Funciona a Plataforma?</h3>
+                <ul>
+                    <li>
+                        <strong>Para quem busca emprego:</strong> Navegue pelas vagas abertas, utilize os filtros por categoria ou palavra-chave e entre em contato direto com os contratantes via WhatsApp ou e-mail. Tudo sem burocracia ou cadastros demorados.
+                    </li>
+                    <li>
+                        <strong>Para profissionais e autônomos:</strong> Divulgue seus serviços (como reformas, diárias, manutenção, aulas, entre outros) na aba dedicada a autônomos para ser encontrado facilmente por clientes da cidade.
+                    </li>
+                    <li>
+                        <strong>Para empresas e contratantes:</strong> Anuncie suas vagas de forma 100% gratuita. Todas as publicações passam por uma moderação prévia antes de ir ao ar, garantindo a qualidade e a segurança das informações divulgadas.
+                    </li>
+                </ul>
+            </div>
+
+            <div class="cartao-academico">
+                <h3>Iniciativa e Impacto Social</h3>
+                <p>
+                    O Paranatinga Emprega é uma solução tecnológica focada no desenvolvimento comunitário, concebida e mantida em colaboração com o ecossistema de Análise e Desenvolvimento de Sistemas da <strong>UNINTER</strong>. A plataforma está alinhada ao <strong>Objetivo de Desenvolvimento Sustentável 8 da ONU (Trabalho Decente e Crescimento Econômico)</strong>, promovendo inovação social e inclusão no mercado de trabalho de Paranatinga.
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer>
+        <p><strong>Paranatinga Emprega</strong> — Conectando a Comunidade</p>
+    </footer>
+
+</body>
+</html>

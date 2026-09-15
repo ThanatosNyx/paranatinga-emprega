@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Área Administrativa - Paranatinga Emprega</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+        .login-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            max-width: 400px;
+            margin: 3rem auto;
+        }
+
+        .login-container h2 {
+            border-bottom: none;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1a4a72;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .btn-entrar {
+            background-color: #1a4a72;
+            color: white;
+            border: none;
+            padding: 0.85rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-entrar:hover {
+            background-color: #133653;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header>
+    <div class="logo">
+        <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">Paranatinga Emprega</a>
+    </div>
+    <nav>
+        <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Ver Vagas</a>
+        <a href="{{ url_for('cadastrar_vaga') }}" class="{{ 'active' if request.endpoint == 'cadastrar_vaga' }}">Anunciar Vaga</a>
+        <a href="{{ url_for('listar_servicos') }}" class="{{ 'active' if request.endpoint == 'listar_servicos' }}">Serviços & Autônomos</a>
+        <a href="{{ url_for('sobre') }}" class="{{ 'active' if request.endpoint == 'sobre' }}">Sobre o Projeto</a>
+
+        {% if session.get('admin_logado') %}
+        <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' }}">Admin</a>
+        {% endif %}
+    </nav>
+    </header>
+    <main>
+        <div class="login-container">
+            <h2>Acesso Administrativo</h2>
+            
+            <form action="#" method="POST">
+                <div class="form-group">
+                    <label for="usuario">Usuário / E-mail</label>
+                    <input type="text" id="usuario" name="usuario" placeholder="Digite seu usuário" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required>
+                </div>
+
+                <button type="submit" class="btn-entrar">Entrar no Painel</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer>
+        <p><strong>Paranatinga Emprega</strong> — Conectando a Comunidade</p>
+    </footer>
+
+</body>
+</html>

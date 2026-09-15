@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin - Paranatinga Emprega</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+        .admin-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+            margin-top: 1rem;
+            background: #f9f9f9;
+            padding: 0.8rem;
+            border-radius: 6px;
+        }
+        .admin-actions select {
+            padding: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .btn-aprovar { background-color: #2a9d8f; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-excluir { background-color: #e76f51; color: white; border: none; padding: 0.6rem 1.2rem; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .badge-pendente { background-color: #f4a261; color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; display: inline-block; margin-bottom: 0.5rem; }
+        .badge-ativo { background-color: #2a9d8f; color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; display: inline-block; margin-bottom: 0.5rem; }
+        .secao-admin { margin-bottom: 3rem; border-bottom: 2px solid #eee; padding-bottom: 2rem; }
+        .info-data { font-size: 0.85rem; color: #555; margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+
+    <header>
+    <div class="logo">
+        <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">Paranatinga Emprega</a>
+    </div>
+    <nav>
+        <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Ver Vagas</a>
+        <a href="{{ url_for('cadastrar_vaga') }}" class="{{ 'active' if request.endpoint == 'cadastrar_vaga' }}">Anunciar Vaga</a>
+        <a href="{{ url_for('listar_servicos') }}" class="{{ 'active' if request.endpoint == 'listar_servicos' }}">Serviços & Autônomos</a>
+        <a href="{{ url_for('sobre') }}" class="{{ 'active' if request.endpoint == 'sobre' }}">Sobre o Projeto</a>
+
+        {% if session.get('admin_logado') %}
+        <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' }}">Admin</a>
+        {% endif %}
+    </nav>
+    </header>
+
+    <main>
+        <!-- 1. VAGAS PENDENTES -->
+        <div class="secao-admin">
+            <h2>Vagas de Emprego Aguardando Moderação</h2>
+            <div class="vagas-container">
+                {% if vagas_pendentes %}
+                    {% for vaga in vagas_pendentes %}
+                        <div class="vaga-card">
+                            <span class="badge-pendente">Vaga Pendente</span>
+                            <div class="info-data">Enviada em: {{ vaga.data_postagem or 'Recente' }}</div>
+                            <h3>{{ vaga.titulo }}</h3>
+                            <p><strong>Contratante:</strong> {{ vaga.contratante }} | <strong>Contato:</strong> {{ vaga.contato }}</p>
+                            <p><strong>Descrição:</strong> {{ vaga.descricao }}</p>
+
+                            <div class="admin-actions">
+                                <form action="{{ url_for('aprovar_vaga', id=vaga.id) }}" method="POST" style="display:flex; gap:8px; align-items:center;">
+                                    <label><strong>Validade:</strong></label>
+                                    <select name="validade_dias">
+                                        <option value="1">1 dia</option>
+                                        <option value="7">1 semana (7 dias)</option>
+                                        <option value="30" selected>1 mês (30 dias)</option>
+                                        <option value="0">Indefinido</option>
+                                    </select>
+                                    <button type="submit" class="btn-aprovar">Aprovar Vaga</button>
+                                </form>
+
+                                <form action="{{ url_for('excluir_vaga', id=vaga.id) }}" method="POST" onsubmit="return confirm('Deseja rejeitar e excluir esta vaga?');">
+                                    <button type="submit" class="btn-excluir">Rejeitar/Excluir</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="sem-vagas"><p>Nenhuma vaga pendente!</p></div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 2. SERVIÇOS PENDENTES -->
+        <div class="secao-admin">
+            <h2>Serviços e Autônomos Aguardando Moderação</h2>
+            <div class="vagas-container">
+                {% if servicos_pendentes %}
+                    {% for servico in servicos_pendentes %}
+                        <div class="vaga-card">
+                            <span class="badge-pendente">Serviço Pendente</span>
+                            <div class="info-data">Enviado em: {{ servico.data_postagem or 'Recente' }}</div>
+                            <h3>{{ servico.titulo_servico }}</h3>
+                            <p><strong>Profissional:</strong> {{ servico.nome }} | <strong>Contato:</strong> {{ servico.contato }}</p>
+                            <p><strong>Descrição:</strong> {{ servico.descricao }}</p>
+
+                            <div class="admin-actions">
+                                <form action="{{ url_for('aprovar_servico', id=servico.id) }}" method="POST" style="display:flex; gap:8px; align-items:center;">
+                                    <label><strong>Validade:</strong></label>
+                                    <select name="validade_dias">
+                                        <option value="1">1 dia</option>
+                                        <option value="7">1 semana (7 dias)</option>
+                                        <option value="30" selected>1 mês (30 dias)</option>
+                                        <option value="0">Indefinido</option>
+                                    </select>
+                                    <button type="submit" class="btn-aprovar">Aprovar Serviço</button>
+                                </form>
+
+                                <form action="{{ url_for('excluir_servico', id=servico.id) }}" method="POST" onsubmit="return confirm('Deseja rejeitar e excluir este serviço?');">
+                                    <button type="submit" class="btn-excluir">Rejeitar/Excluir</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="sem-vagas"><p>Nenhum serviço pendente!</p></div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 3. VAGAS ATIVAS NO SITE -->
+        <div class="secao-admin">
+            <h2>Vagas Ativas no Site</h2>
+            <div class="vagas-container">
+                {% if vagas_aprovadas %}
+                    {% for vaga in vagas_aprovadas %}
+                        <div class="vaga-card">
+                            <span class="badge-ativo">Publicada</span>
+                            <div class="info-data">Postado em: {{ vaga.data_postagem or 'Recente' }}</div>
+                            <h3>{{ vaga.titulo }}</h3>
+                            <p><strong>Contratante:</strong> {{ vaga.contratante }}</p>
+                            
+                            <div class="admin-actions">
+                                <form action="{{ url_for('excluir_vaga', id=vaga.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover esta vaga do site?');">
+                                    <button type="submit" class="btn-excluir">Remover do Site</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="sem-vagas"><p>Nenhuma vaga publicada no momento.</p></div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- 4. SERVIÇOS ATIVOS NO SITE -->
+        <div class="secao-admin">
+            <h2>Serviços Ativos no Site</h2>
+            <div class="vagas-container">
+                {% if servicos_aprovados %}
+                    {% for servico in servicos_aprovados %}
+                        <div class="vaga-card">
+                            <span class="badge-ativo">Publicado</span>
+                            <div class="info-data">Postado em: {{ servico.data_postagem or 'Recente' }}</div>
+                            <h3>{{ servico.titulo_servico }}</h3>
+                            <p><strong>Profissional:</strong> {{ servico.nome }}</p>
+                            
+                            <div class="admin-actions">
+                                <form action="{{ url_for('excluir_servico', id=servico.id) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja remover este serviço do site?');">
+                                    <button type="submit" class="btn-excluir">Remover do Site</button>
+                                </form>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="sem-vagas"><p>Nenhum serviço publicado no momento.</p></div>
+                {% endif %}
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        <p><strong>Paranatinga Emprega</strong> — Painel Administrativo</p>
+    </footer>
+
+</body>
+</html>

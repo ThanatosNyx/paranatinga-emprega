@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divulgar Serviço - Paranatinga Emprega</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+        .form-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 6px;
+            max-width: 600px;
+            margin: 0 auto;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .btn-submit {
+            background-color: #2a9d8f;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+    <div class="logo">
+        <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">Paranatinga Emprega</a>
+    </div>
+    <nav>
+        <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Ver Vagas</a>
+        <a href="{{ url_for('cadastrar_vaga') }}" class="{{ 'active' if request.endpoint == 'cadastrar_vaga' }}">Anunciar Vaga</a>
+        <a href="{{ url_for('listar_servicos') }}" class="{{ 'active' if request.endpoint == 'listar_servicos' }}">Serviços & Autônomos</a>
+        <a href="{{ url_for('sobre') }}" class="{{ 'active' if request.endpoint == 'sobre' }}">Sobre o Projeto</a>
+
+        {% if session.get('admin_logado') %}
+        <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' }}">Admin</a>
+        {% endif %}
+    </nav>
+    </header>
+
+    <main>
+        <div class="form-container">
+            <h2>Divulgue seus Serviços</h2>
+            <p style="margin-bottom: 1.5rem; color: #666;">Preencha os dados abaixo para publicar seus serviços gratuitamente.</p>
+
+            <form action="{{ url_for('oferecer_servico') }}" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="nome">Seu Nome Completo:</label>
+                    <input type="text" id="nome" name="nome" required placeholder="Ex: João da Silva">
+                </div>
+
+                <div class="form-group">
+                    <label for="titulo_servico">Serviço / Profissão:</label>
+                    <input type="text" id="titulo_servico" name="titulo_servico" required placeholder="Ex: Eletricista Residencial">
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">Categoria:</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="">Selecione a categoria...</option>
+                        <option value="Construção e Reformas">Construção e Reformas</option>
+                        <option value="Serviços Domésticos">Serviços Domésticos (Diarista, Jardineiro)</option>
+                        <option value="Mecânica e Elétrica">Mecânica e Elétrica</option>
+                        <option value="Beleza e Estética">Beleza e Estética</option>
+                        <option value="Aulas e Tutoria">Aulas e Tutoria</option>
+                        <option value="Tecnologia e Informática">Tecnologia e Informática</option>
+                        <option value="Outros Serviços">Outros Serviços</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="contato">Telefone / WhatsApp:</label>
+                    <input type="text" id="contato" name="contato" required placeholder="Ex: (66) 99999-9999">
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição do Serviço:</label>
+                    <textarea id="descricao" name="descricao" rows="4" required placeholder="Descreva quais serviços você realiza, experiência, horários, etc."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="imagem">Foto do Trabalho ou Cartão de Visitas (Opcional):</label>
+                    <input type="file" id="imagem" name="imagem" accept="image/*">
+                </div>
+
+                <button type="submit" class="btn-submit">Cadastrar Serviço</button>
+            </form>
+        </div>
+    </main>
+
+    <footer>
+        <p><strong>Paranatinga Emprega</strong> — Conectando a Comunidade</p>
+    </footer>
+
+</body>
+</html>

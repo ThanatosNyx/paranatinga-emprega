@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Fundo Azul Principal (#1a4a72) -->
+  <rect width="64" height="64" rx="16" fill="#1a4a72"/>
+  
+  <!-- Alça da Maleta (Branca) -->
+  <path d="M24 22 V18 C24 15.5 26 13.5 28.5 13.5 H35.5 C38 13.5 40 15.5 40 18 V22" 
+        fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Corpo da Maleta (Verde/Teal #2a9d8f) -->
+  <rect x="14" y="22" width="36" height="26" rx="5" fill="#2a9d8f"/>
+  
+  <!-- Detalhe Central / Fecho em Destaque -->
+  <path d="M14 30 H50" stroke="#1a4a72" stroke-width="2.5"/>
+  <circle cx="32" cy="30" r="4" fill="#ffffff"/>
+  
+  <!-- Ponto de Conexão Comunitária (Pin sutil na base) -->
+  <path d="M32 40 L36 44 H28 Z" fill="#ffffff"/>
+</svg>

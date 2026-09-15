@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paranatinga Emprega - Mural de Oportunidades</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+        .hero {
+            background-color: #1a4a72;
+            color: white;
+            padding: 2.5rem 1rem;
+            text-align: center;
+        }
+        .search-box {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            max-width: 700px;
+            margin: 1.5rem auto 0 auto;
+            flex-wrap: wrap;
+        }
+        .search-box input, .search-box select {
+            padding: 0.75rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            flex: 1;
+            min-width: 180px;
+        }
+        .search-box button {
+            background-color: #2a9d8f;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .search-box button:hover {
+            background-color: #218378;
+        }
+        .flash-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 4px;
+            max-width: 800px;
+            margin: 1rem auto;
+            text-align: center;
+            border: 1px solid #c3e6cb;
+        }
+        .vaga-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #1a4a72;
+        }
+        .vaga-banner {
+            width: 100%;
+            max-height: 320px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .badge-tipo {
+            font-size: 0.8rem;
+            background: #e8f4f8;
+            padding: 3px 8px;
+            border-radius: 4px;
+            color: #2c7da0;
+            font-weight: bold;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header>
+    <div class="logo">
+        <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">Paranatinga Emprega</a>
+    </div>
+    <nav>
+        <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Ver Vagas</a>
+        <a href="{{ url_for('cadastrar_vaga') }}" class="{{ 'active' if request.endpoint == 'cadastrar_vaga' }}">Anunciar Vaga</a>
+        <a href="{{ url_for('listar_servicos') }}" class="{{ 'active' if request.endpoint == 'listar_servicos' }}">Serviços & Autônomos</a>
+        <a href="{{ url_for('sobre') }}" class="{{ 'active' if request.endpoint == 'sobre' }}">Sobre o Projeto</a>
+
+        {% if session.get('admin_logado') %}
+        <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' }}">Admin</a>
+        {% endif %}
+    </nav>
+    </header>
+
+    <!-- Seção de Busca -->
+    <section class="hero">
+        <h1>Oportunidades de Trabalho em Paranatinga/MT</h1>
+        <p>Busca rápida e direta de empregos e serviços comunitários.</p>
+
+        <form action="{{ url_for('index') }}" method="GET" class="search-box">
+            <input type="text" name="q" value="{{ q }}" placeholder="Buscar por cargo, palavra-chave ou empresa...">
+            <select name="categoria">
+                <option value="">Todas as Categorias</option>
+                <option value="comercio" {% if categoria_selecionada == 'comercio' %}selected{% endif %}>Comércio</option>
+                <option value="agro" {% if categoria_selecionada == 'agro' %}selected{% endif %}>Agropecuária / Indústria</option>
+                <option value="servicos" {% if categoria_selecionada == 'servicos' %}selected{% endif %}>Serviços Gerais / Bicos</option>
+                <option value="administracao" {% if categoria_selecionada == 'administracao' %}selected{% endif %}>Administração / Vendas</option>
+                <option value="outros" {% if categoria_selecionada == 'outros' %}selected{% endif %}>Outros</option>
+            </select>
+            <button type="submit">Buscar</button>
+            {% if q or categoria_selecionada %}
+                <a href="{{ url_for('index') }}" style="color: white; align-self: center; text-decoration: underline; font-size: 0.9rem;">Limpar filtros</a>
+            {% endif %}
+        </form>
+    </section>
+
+    <!-- Mensagens do Flask (ex: Vaga enviada) -->
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <div class="flash-message">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Lista de Vagas Aprovadas -->
+    <main style="max-width: 800px; margin: 2rem auto; padding: 0 1rem;">
+        <h2>Vagas Recentes</h2>
+
+        <div class="vagas-container">
+            {% if vagas %}
+                {% for vaga in vagas %}
+                    <div class="vaga-card">
+                        <!-- Exibe a imagem se houver upload -->
+                        {% if vaga.imagem %}
+                            <img src="{{ url_for('static', filename='uploads/' + vaga.imagem) }}" alt="Banner da vaga {{ vaga.titulo }}" class="vaga-banner">
+                        {% endif %}
+
+                        <div style="font-size:0.85rem; color:#666; margin-bottom:0.5rem;">
+                        Postado em: {{ vaga.data_postagem or 'Recente' }}
+                        </div>
+
+                        <h3 style="color: #1a4a72; margin-bottom: 0.5rem;">
+                            {{ vaga.titulo }} 
+                            <span class="badge-tipo">{{ vaga.tipo }}</span>
+                        </h3>
+                        
+                        <p style="margin-bottom: 0.4rem; font-size: 0.95rem;">
+                            <strong>Contratante:</strong> {{ vaga.contratante }}
+                        </p>
+                        <p style="margin-bottom: 0.8rem; font-size: 0.95rem;">
+                            <strong>Contato:</strong> <span style="color: #2a9d8f; font-weight: bold;">{{ vaga.contato }}</span>
+                        </p>
+                        <p style="color: #444; line-height: 1.5;">{{ vaga.descricao }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div style="background: white; padding: 2rem; text-align: center; border-radius: 6px; color: #666;">
+                    <p style="font-size: 1.1rem; margin-bottom: 0.5rem;">Nenhuma vaga encontrada para os critérios selecionados.</p>
+                    <p style="font-size: 0.9rem;">Tente buscar com outros termos ou <a href="{{ url_for('index') }}">ver todas as vagas</a>.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer style="text-align: center; padding: 2rem; background: #222; margin-top: 3rem; font-size: 0.9rem; color: #ccc;">
+        <p><strong>Paranatinga Emprega</strong> — Conectando a Comunidade</p>
+    </footer>
+
+</body>
+</html>

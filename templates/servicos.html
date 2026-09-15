@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviços & Autônomos - Paranatinga Emprega</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+        .search-container {
+            margin-top: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .search-container input, .search-container select {
+            padding: 0.8rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        .search-container input { flex: 2; min-width: 200px; }
+        .search-container select { flex: 1; min-width: 180px; }
+        .search-container button {
+            background-color: #2a9d8f;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .data-postagem {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+    <div class="logo">
+        <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">Paranatinga Emprega</a>
+    </div>
+    <nav>
+        <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Ver Vagas</a>
+        <a href="{{ url_for('cadastrar_vaga') }}" class="{{ 'active' if request.endpoint == 'cadastrar_vaga' }}">Anunciar Vaga</a>
+        <a href="{{ url_for('listar_servicos') }}" class="{{ 'active' if request.endpoint == 'listar_servicos' }}">Serviços & Autônomos</a>
+        <a href="{{ url_for('sobre') }}" class="{{ 'active' if request.endpoint == 'sobre' }}">Sobre o Projeto</a>
+
+        {% if session.get('admin_logado') %}
+        <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' }}">Admin</a>
+        {% endif %}
+    </nav>
+    </header>
+
+    <div class="hero">
+        <h1>Profissionais e Autônomos</h1>
+        <p>Encontre pedreiros, diaristas, eletricistas, manicures e outros serviços em Paranatinga.</p>
+
+        <!-- Formulário de Busca e Categorias -->
+        <form action="{{ url_for('listar_servicos') }}" method="GET" class="search-container">
+            <input type="text" name="q" placeholder="Buscar por serviço, nome..." value="{{ busca or '' }}">
+            
+            <select name="categoria">
+                <option value="">Todas as Categorias</option>
+                <option value="Construção e Reformas" {% if categoria_selecionada == 'Construção e Reformas' %}selected{% endif %}>Construção e Reformas</option>
+                <option value="Serviços Domésticos" {% if categoria_selecionada == 'Serviços Domésticos' %}selected{% endif %}>Serviços Domésticos (Diarista, Jardineiro)</option>
+                <option value="Mecânica e Elétrica" {% if categoria_selecionada == 'Mecânica e Elétrica' %}selected{% endif %}>Mecânica e Elétrica</option>
+                <option value="Beleza e Estética" {% if categoria_selecionada == 'Beleza e Estética' %}selected{% endif %}>Beleza e Estética</option>
+                <option value="Aulas e Tutoria" {% if categoria_selecionada == 'Aulas e Tutoria' %}selected{% endif %}>Aulas e Tutoria</option>
+                <option value="Tecnologia e Informática" {% if categoria_selecionada == 'Tecnologia e Informática' %}selected{% endif %}>Tecnologia e Informática</option>
+                <option value="Outros Serviços" {% if categoria_selecionada == 'Outros Serviços' %}selected{% endif %}>Outros Serviços</option>
+            </select>
+
+            <button type="submit">Buscar</button>
+        </form>
+
+        <div style="margin-top: 1.5rem;">
+            <a href="{{ url_for('oferecer_servico') }}" style="display:inline-block; background-color:#2a9d8f; color:white; padding:0.8rem 1.5rem; text-decoration:none; border-radius:4px; font-weight:bold;">
+                + Divulgar Meu Serviço
+            </a>
+        </div>
+    </div>
+
+    <main>
+        <h2>
+            {% if busca or categoria_selecionada %}
+                Resultados filtrados (<a href="{{ url_for('listar_servicos') }}" style="font-size: 0.9rem; color: #2a9d8f;">Limpar filtros</a>)
+            {% else %}
+                Prestadores de Serviços Cadastrados
+            {% endif %}
+        </h2>
+
+        <div class="vagas-container">
+            {% if servicos %}
+                {% for servico in servicos %}
+                    <div class="vaga-card">
+                        <div class="data-postagem">Postado em: {{ servico.data_postagem or 'Recente' }}</div>
+                        <h3>{{ servico.titulo_servico }}</h3>
+                        <p><strong>Profissional:</strong> {{ servico.nome }}</p>
+                        <p><strong>Categoria:</strong> {{ servico.categoria }}</p>
+                        <p><strong>Contato / WhatsApp:</strong> {{ servico.contato }}</p>
+
+                        {% if servico.imagem %}
+                            <img src="{{ url_for('static', filename='uploads/' + servico.imagem) }}" alt="Foto do serviço">
+                        {% endif %}
+
+                        <p style="margin-top:0.5rem;"><strong>Descrição:</strong> {{ servico.descricao }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="sem-vagas">
+                    <p>Nenhum serviço encontrado.</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <footer>
+        <p><strong>Paranatinga Emprega</strong> — Conectando a Comunidade</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anunciar Vaga - Paranatinga Emprega</title>
+    <!-- Usa a mesma folha de estilo já configurada -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
+    <style>
+        /* Estilos específicos para o formulário */
+        .form-container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #1a4a72;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .aviso-moderacao {
+            background-color: #e8f4f8;
+            border-left: 4px solid #1a4a72;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            color: #2c7da0;
+            border-radius: 4px;
+        }
+
+        .btn-enviar {
+            background-color: #2a9d8f;
+            color: white;
+            border: none;
+            padding: 0.85rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .btn-enviar:hover {
+            background-color: #218378;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Cabeçalho -->
+    <header>
+    <div class="logo">
+        <a href="{{ url_for('index') }}" style="color: white; text-decoration: none;">Paranatinga Emprega</a>
+    </div>
+    <nav>
+        <a href="{{ url_for('index') }}" class="{{ 'active' if request.endpoint == 'index' }}">Ver Vagas</a>
+        <a href="{{ url_for('cadastrar_vaga') }}" class="{{ 'active' if request.endpoint == 'cadastrar_vaga' }}">Anunciar Vaga</a>
+        <a href="{{ url_for('listar_servicos') }}" class="{{ 'active' if request.endpoint == 'listar_servicos' }}">Serviços & Autônomos</a>
+        <a href="{{ url_for('sobre') }}" class="{{ 'active' if request.endpoint == 'sobre' }}">Sobre o Projeto</a>
+
+        {% if session.get('admin_logado') %}
+        <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a>
+        <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
+        {% else %}
+        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' }}">Admin</a>
+        {% endif %}
+    </nav>
+    </header>
+
+    <main>
+        <h2>Anunciar Oportunidade</h2>
+
+        <div class="form-container">
+            <div class="aviso-moderacao">
+                <strong>Como funciona?</strong> Preencha os dados abaixo. Para garantir a segurança da comunidade de Paranatinga, sua publicação passará por uma rápida validação do administrador antes de aparecer na lista pública.
+            </div>
+
+            <form action="{{ url_for('cadastrar_vaga') }}" method="POST" enctype="multipart/form-data">
+               
+                <div class="form-group">
+                    <label for="titulo">Título da Vaga / Serviço *</label>
+                    <input type="text" id="titulo" name="titulo" placeholder="Ex: Auxiliar de Escritório, Pintor, Diarista..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="tipo">Tipo de Oportunidade *</label>
+                    <select id="tipo" name="tipo" required>
+                        <option value="">Selecione...</option>
+                        <option value="formal">Emprego Formal (Carteira Assinada / PJ)</option>
+                        <option value="freelance">Freelance / Bico / Serviço Temporário</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="contratante">Quem está contratando? (Nome da Empresa ou Pessoa) *</label>
+                    <input type="text" id="contratante" name="contratante" placeholder="Ex: Supermercado Central ou João da Silva" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="contato">Contato para Candidaturas (WhatsApp ou E-mail) *</label>
+                    <input type="text" id="contato" name="contato" placeholder="Ex: (66) 99999-9999 ou contato@empresa.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">Categoria *</label>
+                    <select id="categoria" name="categoria" required>
+                        <option value="">Selecione a categoria...</option>
+                        <option value="comercio">Comércio</option>
+                        <option value="agro">Agropecuária / Indústria</option>
+                        <option value="servicos">Serviços Gerais / Bicos</option>
+                        <option value="administracao">Administração / Vendas</option>
+                        <option value="outros">Outros</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="imagem">Imagem / Banner da Vaga (Opcional)</label>
+                    <input type="file" id="imagem" name="imagem" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label for="descricao">Descrição da Vaga e Requisitos *</label>
+                    <textarea id="descricao" name="descricao" placeholder="Descreva os detalhes do trabalho, salário/valor (se houver), horário e requisitos..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-enviar">Enviar Vaga para Moderação</button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Rodapé -->
+    <footer>
+        <p><strong>Paranatinga Emprega</strong> — Conectando a Comunidade</p>
+    </footer>
+
+</body>
+</html>
