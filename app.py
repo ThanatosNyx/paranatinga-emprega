@@ -1,6 +1,7 @@
 import os
 import sqlite3
-from datetime import datetime, timedelta
+from datetime import datetime, timezone, timedelta
+fuso_mt = timezone(timedelta(hours=-4))
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.utils import secure_filename
 
@@ -82,7 +83,7 @@ init_db()
 def index():
     q = request.args.get('q', '').strip()
     categoria = request.args.get('categoria', '').strip()
-    agora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    agora = datetime.now(fuso_mt).strftime('%d/%m/%Y às %H:%M')
 
     conn = get_db_connection()
     # Filtra aprovadas e que AINDA NÃO EXPIRARAM (ou que expiram = NULL)
@@ -146,7 +147,7 @@ def cadastrar_vaga():
         contato = request.form['contato']
         categoria = request.form['categoria']
         descricao = request.form['descricao']
-        data_postagem = datetime.now().strftime('%d/%m/%Y às %H:%M')
+        data_postagem = datetime.now(fuso_mt).strftime('%d/%m/%Y às %H:%M')
 
         file = request.files.get('imagem')
         filename = None
@@ -176,7 +177,7 @@ def oferecer_servico():
         categoria = request.form.get('categoria')
         contato = request.form.get('contato')
         descricao = request.form.get('descricao')
-        data_postagem = datetime.now().strftime('%d/%m/%Y às %H:%M')
+        data_postagem = datetime.now(fuso_mt).strftime('%d/%m/%Y às %H:%M')
         
         file = request.files.get('imagem')
         filename = None
@@ -262,7 +263,7 @@ def aprovar_vaga(id):
     dias = int(request.form.get('validade_dias', 30))
     data_expiracao = None
     if dias > 0:
-        data_expiracao = (datetime.now() + timedelta(days=dias)).strftime('%Y-%m-%d %H:%M:%S')
+        data_expiracao = (datetime.now(fuso_mt) + timedelta(days=dias)).strftime('%d/%m/%Y às %H:%M')
 
     conn = get_db_connection()
     conn.execute("UPDATE vagas SET status = 'aprovado', data_expiracao = ? WHERE id = ?", (data_expiracao, id))
@@ -291,7 +292,7 @@ def aprovar_servico(id):
     dias = int(request.form.get('validade_dias', 30))
     data_expiracao = None
     if dias > 0:
-        data_expiracao = (datetime.now() + timedelta(days=dias)).strftime('%Y-%m-%d %H:%M:%S')
+        data_expiracao = (datetime.now() + timedelta(days=dias)).strftime('%d/%m/%Y às %H:%M')
 
     conn = get_db_connection()
     conn.execute("UPDATE servicos SET status = 'aprovado', data_expiracao = ? WHERE id = ?", (data_expiracao, id))
