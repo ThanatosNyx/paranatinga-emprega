@@ -303,3 +303,45 @@ footer p {
 .btn-logout:hover {
   background-color: #d65a3c;
 }
+
+/* Previne rolagem horizontal indesejada na tela inteira */
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+/* Deixa o container principal fluido */
+.container, main, header {
+    width: 100%;
+    max-width: 1200px; /* ou a largura máxima que você usa */
+    padding-left: 15px;
+    padding-right: 15px;
+    margin: 0 auto;
+}
+
+/* Torna as abas do menu quebráveis ou roláveis no celular */
+nav, .nav-tabs, .menu {
+    display: flex;
+    flex-wrap: wrap; /* Permite que as abas dobrem para a linha de baixo */
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Se preferir que as abas fiquem em linha única com rolagem lateral no celular: */
+@media (max-width: 768px) {
+    nav, .nav-tabs, .menu {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        white-space: nowrap;
+        justify-content: flex-start;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch; /* Rolagem suave no iOS */
+    }
+}
