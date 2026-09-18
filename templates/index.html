@@ -168,6 +168,26 @@
                 </div>
             {% endif %}
         </div>
+        <!-- Controles de Paginação -->
+{% if total_paginas > 1 %}
+<div style="display: flex; justify-content: center; align-items: center; gap: 15px; margin: 2rem 0;">
+    {% if pagina > 1 %}
+        <a href="{{ url_for('index', pagina=pagina-1, q=q, categoria=categoria_selecionada) }}" 
+           style="background-color: #1a4a72; color: white; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;">
+           ← Anterior
+        </a>
+    {% endif %}
+
+    <span style="font-size: 0.95rem; color: #555;">Página <strong>{{ pagina }}</strong> de <strong>{{ total_paginas }}</strong></span>
+
+    {% if pagina < total_paginas %}
+        <a href="{{ url_for('index', pagina=pagina+1, q=q, categoria=categoria_selecionada) }}" 
+           style="background-color: #1a4a72; color: white; padding: 0.5rem 1rem; border-radius: 4px; text-decoration: none; font-weight: bold;">
+           Próxima →
+        </a>
+    {% endif %}
+</div>
+{% endif %}
     </main>
 
     <!-- Rodapé -->
