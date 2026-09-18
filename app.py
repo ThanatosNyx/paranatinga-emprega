@@ -81,17 +81,19 @@ init_db()
 
 @app.route('/')
 def index():
-    q = request.args.get('q', '').strip()
-    categoria = request.args.get('categoria', '').strip()
-    agora = datetime.now(fuso_mt).strftime('%d/%m/%Y às %H:%M')
-
-    conn = get_db_connection()
-    # Filtra aprovadas e que AINDA NÃO EXPIRARAM (ou que expiram = NULL)
-    query = """
-        SELECT * FROM vagas 
-        WHERE (status = 'aprovado' OR status = 'aprovada')
-        AND (data_expiracao IS NULL OR data_expiracao >= ?)
-    """
+@app.route('/')
+    def index():
+        q = request.args.get('q', '').strip()
+        categoria = request.args.get('categoria', '').strip()
+        # Usa formato ISO para a comparação de expiração funcionar:
+        agora = datetime.now(fuso_mt).strftime('%Y-%m-%d %H:%M:%S')
+    
+        conn = get_db_connection()
+        query = """
+            SELECT * FROM vagas 
+            WHERE (status = 'aprovado' OR status = 'aprovada')
+            AND (data_expiracao IS NULL OR data_expiracao >= ?)
+        """
     params = [agora]
 
     if q:
@@ -113,7 +115,7 @@ def index():
 def listar_servicos():
     busca = request.args.get('q', '').strip()
     categoria = request.args.get('categoria', '').strip()
-    agora = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    agora = datetime.now(fuso_mt).strftime('%Y-%m-%d %H:%M:%S')
 
     conn = get_db_connection()
     query = """
@@ -263,7 +265,7 @@ def aprovar_vaga(id):
     dias = int(request.form.get('validade_dias', 30))
     data_expiracao = None
     if dias > 0:
-        data_expiracao = (datetime.now(fuso_mt) + timedelta(days=dias)).strftime('%d/%m/%Y às %H:%M')
+        data_expiracao = (datetime.now(fuso_mt) + timedelta(days=dias)).strftime('%Y-%m-%d %H:%M:%S')
 
     conn = get_db_connection()
     conn.execute("UPDATE vagas SET status = 'aprovado', data_expiracao = ? WHERE id = ?", (data_expiracao, id))
@@ -292,7 +294,7 @@ def aprovar_servico(id):
     dias = int(request.form.get('validade_dias', 30))
     data_expiracao = None
     if dias > 0:
-        data_expiracao = (datetime.now() + timedelta(days=dias)).strftime('%d/%m/%Y às %H:%M')
+        data_expiracao = (datetime.now(fuso_mt) + timedelta(days=dias)).strftime('%Y-%m-%d %H:%M:%S')
 
     conn = get_db_connection()
     conn.execute("UPDATE servicos SET status = 'aprovado', data_expiracao = ? WHERE id = ?", (data_expiracao, id))
