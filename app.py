@@ -81,63 +81,98 @@ init_db()
 
 @app.route('/')
 def index():
-@app.route('/')
-    def index():
-        q = request.args.get('q', '').strip()
-        categoria = request.args.get('categoria', '').strip()
-        # Usa formato ISO para a comparação de expiração funcionar:
-        agora = datetime.now(fuso_mt).strftime('%Y-%m-%d %H:%M:%S')
-    
-        conn = get_db_connection()
-        query = """
-            SELECT * FROM vagas 
-            WHERE (status = 'aprovado' OR status = 'aprovada')
-            AND (data_expiracao IS NULL OR data_expiracao >= ?)
-        """
+    q = request.args.get('q', '').strip()
+    categoria = request.args.get('categoria', '').strip()
+    pagina = request.args.get('pagina', 1, type=int)
+    por_pagina = 10
+    offset = (pagina - 1) * por_pagina
+    agora = datetime.now(fuso_mt).strftime('%Y-%m-%d %H:%M:%S')
+
+    conn = get_db_connection()
+
+    # Cláusula base de filtro
+    where_clause = """
+        WHERE (status = 'aprovado' OR status = 'aprovada')
+        AND (data_expiracao IS NULL OR data_expiracao >= ?)
+    """
     params = [agora]
 
     if q:
-        query += " AND (titulo LIKE ? OR descricao LIKE ? OR contratante LIKE ?)"
+        where_clause += " AND (titulo LIKE ? OR descricao LIKE ? OR contratante LIKE ?)"
         params.extend([f'%{q}%', f'%{q}%', f'%{q}%'])
     
     if categoria:
-        query += " AND categoria = ?"
+        where_clause += " AND categoria = ?"
         params.append(categoria)
 
-    query += " ORDER BY id DESC"
-    vagas = conn.execute(query, params).fetchall()
+    # 1. Contar o total de vagas para calcular o número de páginas
+    count_query = f"SELECT COUNT(*) FROM vagas {where_clause}"
+    total_vagas = conn.execute(count_query, params).fetchone()[0]
+    total_paginas = max(1, (total_vagas + por_pagina - 1) // por_pagina)
+
+    # 2. Buscar apenas as 10 vagas da página solicitada
+    query = f"SELECT * FROM vagas {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
+    params_paginados = params + [por_pagina, offset]
+    vagas = conn.execute(query, params_paginados).fetchall()
+
     conn.close()
 
-    return render_template('index.html', vagas=vagas, q=q, categoria_selecionada=categoria)
+    return render_template(
+        'index.html', 
+        vagas=vagas, 
+        q=q, 
+        categoria_selecionada=categoria,
+        pagina=pagina,
+        total_paginas=total_paginas
+    )
 
 
 @app.route('/servicos')
 def listar_servicos():
     busca = request.args.get('q', '').strip()
     categoria = request.args.get('categoria', '').strip()
+    pagina = request.args.get('pagina', 1, type=int)
+    por_pagina = 10
+    offset = (pagina - 1) * por_pagina
     agora = datetime.now(fuso_mt).strftime('%Y-%m-%d %H:%M:%S')
 
     conn = get_db_connection()
-    query = """
-        SELECT * FROM servicos 
+
+    # Cláusula base de filtro
+    where_clause = """
         WHERE status = 'aprovado' 
         AND (data_expiracao IS NULL OR data_expiracao >= ?)
     """
     params = [agora]
     
     if busca:
-        query += " AND (titulo_servico LIKE ? OR nome LIKE ? OR descricao LIKE ?)"
+        where_clause += " AND (titulo_servico LIKE ? OR nome LIKE ? OR descricao LIKE ?)"
         params.extend([f'%{busca}%', f'%{busca}%', f'%{busca}%'])
 
     if categoria:
-        query += " AND categoria = ?"
+        where_clause += " AND categoria = ?"
         params.append(categoria)
 
-    query += " ORDER BY id DESC"
-    servicos = conn.execute(query, params).fetchall()
+    # 1. Contar o total de serviços para calcular o número de páginas
+    count_query = f"SELECT COUNT(*) FROM servicos {where_clause}"
+    total_servicos = conn.execute(count_query, params).fetchone()[0]
+    total_paginas = max(1, (total_servicos + por_pagina - 1) // por_pagina)
+
+    # 2. Buscar apenas os 10 serviços da página solicitada
+    query = f"SELECT * FROM servicos {where_clause} ORDER BY id DESC LIMIT ? OFFSET ?"
+    params_paginados = params + [por_pagina, offset]
+    servicos = conn.execute(query, params_paginados).fetchall()
+
     conn.close()
 
-    return render_template('servicos.html', servicos=servicos, busca=busca, categoria_selecionada=categoria)
+    return render_template(
+        'servicos.html', 
+        servicos=servicos, 
+        busca=busca, 
+        categoria_selecionada=categoria,
+        pagina=pagina,
+        total_paginas=total_paginas
+    )
 
 
 @app.route('/cadastrar-vaga', methods=['GET', 'POST'])
