@@ -52,12 +52,11 @@
         <a href="{{ url_for('cadastrar_vaga') }}" class="{{ 'active' if request.endpoint == 'cadastrar_vaga' }}">Anunciar Vaga</a>
         <a href="{{ url_for('listar_servicos') }}" class="{{ 'active' if request.endpoint == 'listar_servicos' }}">Serviços & Autônomos</a>
         <a href="{{ url_for('sobre') }}" class="{{ 'active' if request.endpoint == 'sobre' }}">Sobre o Projeto</a>
-
+    
+        <!-- SÓ APARECE QUANDO O ADMIN ESTIVER LOGADO -->
         {% if session.get('admin_logado') %}
-        <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}">Admin</a>
-        <a href="{{ url_for('logout') }}" class="btn-logout">Sair</a>
-        {% else %}
-        <a href="{{ url_for('login') }}" class="{{ 'active' if request.endpoint == 'login' }}">Admin</a>
+            <a href="{{ url_for('admin') }}" class="{{ 'active' if request.endpoint == 'admin' }}" style="color: #f1c40f; font-weight: bold;">Painel Admin</a>
+            <a href="{{ url_for('logout') }}" class="btn-logout" style="color: #e74c3c;">Sair</a>
         {% endif %}
     </nav>
     </header>
