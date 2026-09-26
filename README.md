@@ -32,7 +32,7 @@ Este sistema foi desenvolvido como Atividade Prática Extensionista do curso de 
 
 ---
 
-## Acesso ao Painel Administrativo (Para Avaliação)
+## Acesso ao Painel Administrativo 
 
 Para testar o fluxo de moderação de conteúdo (aprovação de cadastros pendentes, edição ou exclusão de postagens):
 
